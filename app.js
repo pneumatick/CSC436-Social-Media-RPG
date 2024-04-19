@@ -13,16 +13,20 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(morgan('dev'));
+app.use(express.json());
 app.use(express.static('public'));
 
-con.connect(function(err) {
-	if (err) throw err;
-	// Perform a query on the 'item' table
-	con.query('SELECT * FROM item', function(err, result) {
-		if (err) throw err;
-		console.log(result);
+app.post('/query', async (req, res) => {
+	let {query} = req.body;
+	con.query(query, function(err, result) {
+		if (err) {
+			res.status(404).json();
+			throw err;
+		}
+		res.send({ query: result });
 	});
 });
+
 
 app.listen(PORT, () => {
 	console.log(`Server is listening on port ${PORT}`);
