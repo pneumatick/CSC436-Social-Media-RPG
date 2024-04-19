@@ -1,7 +1,12 @@
 const testButton = document.getElementById('test');
 
-const URL = 'http://localhost:3000';
+// This is the site that we will use to host the server.
+const URL = 'https://csc436-social-media-rpg.onrender.com';
 
+// Uncomment this if you're testing on your own machine:
+//const URL = 'http://localhost:3000';
+
+// Test function to get items
 async function itemQuery() {
 	// Send a POST requet to the server to perform a query
 	// and save the HTML response
