@@ -62,25 +62,32 @@ async function login() {
 				loginDiv.parentNode.removeChild(loginDiv);
 				return res.json();
 			}
-				
+			else if (res.status === 401) {
+				console.log('Login failed (bad credentials)');
+				alert('Login failed (bad credentials)');
+				return null;
+			}
 		})
 		.catch(err => { console.log(err); });
 	
-	response.characters.forEach((row) => {
-		let charDiv = document.createElement('div');
-		charDiv.id = row.character_ID;
+	// Create a div for each character and a button to select them
+	if (response) {
+		response.characters.forEach((row) => {
+			let charDiv = document.createElement('div');
+			charDiv.id = row.character_ID;
 
-		let characterElem = document.createElement('h2');
-		characterElem.innerHTML = row.name;
-		charDiv.appendChild(characterElem);
-		
-		let charButton = document.createElement('button');
-		charButton.onclick = charSelect;
-		charButton.innerText = 'Select';
-		charDiv.appendChild(charButton);
-		
-		charSelDiv.appendChild(charDiv);
-	});
+			let characterElem = document.createElement('h2');
+			characterElem.innerHTML = row.name;
+			charDiv.appendChild(characterElem);
+			
+			let charButton = document.createElement('button');
+			charButton.onclick = charSelect;
+			charButton.innerText = 'Select';
+			charDiv.appendChild(charButton);
+			
+			charSelDiv.appendChild(charDiv);
+		});
+	}
 }
 
 // Character select function

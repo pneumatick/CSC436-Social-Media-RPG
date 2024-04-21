@@ -2,6 +2,8 @@ const express = require('express');
 const morgan = require('morgan');
 var mysql = require('mysql');
 
+const {sanitizeString} = require('./helpers.js');
+
 /* Database connection code */
 var con;
 function handleDisconnect() {
@@ -55,6 +57,10 @@ app.post('/login', async (req, res) => {
 	let loggedIn = false;
 	let { username, password } = req.body;
 
+	// Sanitize the input
+	username = sanitizeString(username);
+	password = sanitizeString(password);	
+
 	// Check if the user exists
 	let query = `SELECT COUNT(*) FROM \`user\` WHERE username='${username}' AND password='${password}';`;
 	con.query(query, function(err, result) {
@@ -66,22 +72,25 @@ app.post('/login', async (req, res) => {
 		qResult.forEach((k, v) => {
 			if (k['COUNT(*)'] == 0) {
 				console.log("Login attempt failed (bad credentials)");
-				return res.status(401).json();
+				res.status(401).json();
+				res.send();
+			}
+			else {
+				loggedIn = true;
 			}
 		});
+		// If the user exists, get their characters
+		if (loggedIn) {
+			let char_query = `SELECT player_character.* FROM user INNER JOIN plays ON user.username = plays.username INNER JOIN player_character ON plays.character_ID=player_character.character_ID WHERE user.username='${username}';`;
+			con.query(char_query, function(err, result) {
+				if (err) {
+					res.status(404).json();
+					throw err;
+				}	
+				res.send({ characters: result });
+			});
+		}
     });
-
-	// If the user exists, get their characters
-	if (loggedIn) {
-		let char_query = `SELECT player_character.* FROM user INNER JOIN plays ON user.username = plays.username INNER JOIN player_character ON plays.character_ID=player_character.character_ID WHERE user.username='${username}';`;
-		con.query(char_query, function(err, result) {
-			if (err) {
-				res.status(404).json();
-				throw err;
-			}	
-			res.send({ characters: result });
-		});
-	}
 });
 
 app.listen(PORT, () => {
