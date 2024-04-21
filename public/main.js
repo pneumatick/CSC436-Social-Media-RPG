@@ -41,10 +41,21 @@ async function itemQuery() {
 	});
 }
 
+/* Login functions */
+
+// SHA-256 hashing function
+async function sha256(password) {
+    const msgBuffer = new TextEncoder().encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
 // Login function
 async function login() {
 	let username = loginText.value;
-	let password = passText.value;
+	let password = await sha256(passText.value);
 	let response = await fetch(URL + '/login', {
 			method: "POST",
 			headers: {
@@ -97,5 +108,6 @@ function charSelect(elem) {
 	charSelDiv.parentNode.removeChild(charSelDiv);
 }
 
+// Assign functions to elements
 testButton.onclick = itemQuery;
 loginButton.onclick = login;
