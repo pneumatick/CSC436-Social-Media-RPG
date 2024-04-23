@@ -87,27 +87,14 @@ async function signUp() {
 	
 	// Create a div for each character and a button to select them
 	if (response) {
-		response.characters.forEach((row) => {
-			let charDiv = document.createElement('div');
-			charDiv.id = row.character_ID;
-
-			let characterElem = document.createElement('h2');
-			characterElem.innerHTML = row.name;
-			charDiv.appendChild(characterElem);
-			
-			let charButton = document.createElement('button');
-			charButton.onclick = charSelect;
-			charButton.innerText = 'Select';
-			charDiv.appendChild(charButton);
-			
-			charSelDiv.appendChild(charDiv);
-		});
+		char_id = response.char_id;
+		console.log("Char ID selected: ", char_id);
 	}
 }
 
 // Login function
 async function login() {
-	let username = loginText.value;
+	username = loginText.value;
 	let password = await sha256(passText.value);
 	let response = await fetch(URL + '/login', {
 			method: "POST",
