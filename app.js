@@ -93,6 +93,43 @@ app.post('/login', async (req, res) => {
     });
 });
 
+// Handle sign up requests
+app.post('/signup', async (req, res) => {
+	let { username, password, email } = req.body;
+
+	// Sanitize the input
+	username = sanitizeString(username);
+	password = sanitizeString(password);
+	email = sanitizeString(email);
+
+	// Check if the user exists
+	let query = `SELECT COUNT(*) FROM \`user\` WHERE username='${username}';`;
+	con.query(query, function(err, result) {
+		if (err) {
+			res.status(404).json();
+			throw err;
+		}
+		let qResult = Object.values(JSON.parse(JSON.stringify(result)));
+		qResult.forEach((k, v) => {
+			if (k['COUNT(*)'] >= 1) {
+				console.log("Sign up attempt failed (user exists)");
+				res.status(409).json();
+				res.send();
+			}
+			else {
+				let insert_query = `INSERT INTO \`user\` (email, username, password) VALUES ('${email}', '${username}', '${password}');`;
+				con.query(insert_query, function(err, result) {
+					if (err) {
+						res.status(404).json();
+						throw err;
+					}
+					res.send();
+				});
+			}
+		});
+	});
+});
+
 app.listen(PORT, () => {
 	console.log(`Server is listening on port ${PORT}`);
 });
