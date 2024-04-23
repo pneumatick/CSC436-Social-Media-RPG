@@ -56,7 +56,7 @@ async function sha256(password) {
 
 // Sign up function
 async function signUp() {
-	let username = loginText.value;
+	username = loginText.value;
 	let password = await sha256(passText.value);
 	let email = emailText.value;
 	let response = await fetch(URL + '/signup', {
@@ -143,8 +143,8 @@ async function login() {
 
 // Character select function
 function charSelect(elem) {
-	char_ID = elem.target.parentNode.id;
-	console.log("Char ID selected: ", char_ID);
+	char_id = elem.target.parentNode.id;
+	console.log("Char ID selected: ", char_id);
 	charSelDiv.parentNode.removeChild(charSelDiv);
 }
 
