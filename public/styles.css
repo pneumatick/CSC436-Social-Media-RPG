@@ -1,0 +1,72 @@
+body {
+    background-image: url("images/dark_wood_background.jpg");
+  }
+
+#banner {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h2 {
+    color: rgb(115, 15, 15);
+    font-family: Georgia;
+    font-size: 200%;
+    background-color: cornsilk;
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+h2 {
+    color: rgb(115, 15, 15);
+    font-family: Georgia;
+    font-size: 150%;
+    background-color: cornsilk;
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#navBar {
+    background-color: saddlebrown;
+    margin-left: auto;
+    margin-right: auto;
+    width: 1125px;
+}
+
+#loginDiv{
+    background-color: cornsilk;
+    border-radius: 25px;
+    width: 350px;
+    height: 350px;
+    border-style: solid;
+    border-width: 4px;
+    border-color:burlywood;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+}
+
+.mapNavDiv {
+    background-color: cornsilk;
+    border-radius: 25px;
+    border-style: solid;
+    border-width: 4px;
+    border-color:burlywood;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    display: none;
+}
+
+.mapNavDiv .active{
+    background-color: cornsilk;
+    border-radius: 25px;
+    border-style: solid;
+    border-width: 4px;
+    border-color:burlywood;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    display: block;
+}

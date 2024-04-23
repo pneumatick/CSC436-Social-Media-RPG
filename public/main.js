@@ -2,6 +2,12 @@ const testButton = document.getElementById('test');
 const emailText = document.getElementById('email');
 const loginButton = document.getElementById('loginButton');
 const switchButton = document.getElementById('switchButton');
+
+const charSelectButton = document.getElementById('charSelectButton')
+const mapNavButton = document.getElementById('mapNavButton')
+const mapCloseButton = document.getElementById('mapCloseButton')
+
+
 const loginText = document.getElementById('username');
 const passText = document.getElementById('password');
 const loginDiv = document.getElementById('loginDiv');
@@ -166,7 +172,20 @@ function signOrLog(elem) {
 	}
 }
 
+function toggleMap(){
+	document.getElementById('mapNavDiv').classList.toggle('active')
+}
+
+
+// Assign functions to elements
+//testButton.onclick = itemQuery;
+loginButton.onclick = login;
+switchButton.onclick = signOrLog;
+mapNavButton.onclick = toggleMap;
+mapCloseButton.onclick = toggleMap;
+
 // Assign functions to elements
 testButton.onclick = itemQuery;
 loginButton.onclick = login;
 switchButton.onclick = signOrLog;
+
