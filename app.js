@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 var mysql = require('mysql');
 
 const {sanitizeString} = require('./helpers.js');
@@ -36,6 +37,7 @@ handleDisconnect();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static('public'));
