@@ -1,5 +1,7 @@
 const testButton = document.getElementById('test');
+const emailText = document.getElementById('email');
 const loginButton = document.getElementById('loginButton');
+const switchButton = document.getElementById('switchButton');
 const loginText = document.getElementById('username');
 const passText = document.getElementById('password');
 const loginDiv = document.getElementById('loginDiv');
@@ -41,7 +43,7 @@ async function itemQuery() {
 	});
 }
 
-/* Login functions */
+/* Log in / sign up functions */
 
 // SHA-256 hashing function
 async function sha256(password) {
@@ -52,9 +54,47 @@ async function sha256(password) {
     return hashHex;
 }
 
+// Sign up function
+async function signUp() {
+	let username = loginText.value;
+	let password = await sha256(passText.value);
+	let email = emailText.value;
+	let response = await fetch(URL + '/signup', {
+			method: "POST",
+			headers: {
+				'Accept': 'application/json',
+		    	'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				username: username,
+				password: password,
+				email: email
+			})
+		})
+		.then(res => {
+			if (res.status === 200) {
+				console.log('Sign up successful');
+				loginDiv.parentNode.removeChild(loginDiv);
+				return res.json();
+			}
+			else if (res.status === 409) {
+				console.log('Sign up failed (user exists)');
+				alert('Sign up failed (user exists)');
+				return null;
+			}
+		})
+		.catch(err => { console.log(err); });
+	
+	// Create a div for each character and a button to select them
+	if (response) {
+		char_id = response.char_id;
+		console.log("Char ID selected: ", char_id);
+	}
+}
+
 // Login function
 async function login() {
-	let username = loginText.value;
+	username = loginText.value;
 	let password = await sha256(passText.value);
 	let response = await fetch(URL + '/login', {
 			method: "POST",
@@ -108,6 +148,25 @@ function charSelect(elem) {
 	charSelDiv.parentNode.removeChild(charSelDiv);
 }
 
+// Switch between logging in and signing up
+function signOrLog(elem) {
+	// Switch to Sign Up mode
+	if (elem.target.innerText === 'Sign Up Instead') {
+		emailText.style.display = 'block';
+		elem.target.innerText = 'Log in Instead';
+		loginButton.innerText = 'Sign Up';
+		loginButton.onclick = signUp;
+	}
+	// Switch to Log In mode 
+	else {
+		emailText.style.display = 'none';
+		elem.target.innerText = 'Sign Up Instead';
+		loginButton.innerText = 'Log In';
+		loginButton.onclick = login;
+	}
+}
+
 // Assign functions to elements
 testButton.onclick = itemQuery;
 loginButton.onclick = login;
+switchButton.onclick = signOrLog;
