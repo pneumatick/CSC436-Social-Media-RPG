@@ -26,7 +26,8 @@ function handleDisconnect() {
 		console.log('Database error:', err);
 		if(err.code === 'PROTOCOL_CONNECTION_LOST') {
 			handleDisconnect();
-		} else {
+		} 
+		else {
 			throw err;
 		}
 	});
@@ -45,13 +46,19 @@ app.use(express.static('public'));
 // Handle front-end queries
 app.post('/query', async (req, res) => {
 	let {query} = req.body;
+	try {
 	con.query(query, function(err, result) {
-		if (err) {
-			res.status(404).json();
-			throw err;
-		}
+		//if (err) {
+		//	res.status(400).json();
+		//	throw err;
+		//}
 		res.send({ query: result });
-	});
+	})
+	}
+	catch (err) {
+		console.log(err);
+		res.status(400).json();
+	}
 });
 
 // Handle log in requests
