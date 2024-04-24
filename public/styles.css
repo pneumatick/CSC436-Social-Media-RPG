@@ -14,7 +14,7 @@ h2 {
     font-size: 200%;
     background-color: cornsilk;
     border-radius: 10px;
-    margin-left: auto;
+    margin-left: 10px;
     margin-right: auto;
 }
 h3 {
@@ -23,8 +23,17 @@ h3 {
     font-size: 150%;
     background-color: cornsilk;
     border-radius: 10px;
-    margin-left: auto;
+    margin-left: 10px;
     margin-right: auto;
+}
+h4 {
+    margin-left: 10px;
+}
+p {
+    margin-left: 10px;
+}
+li {
+    margin-left: 10px;
 }
 
 #navBar {
@@ -48,13 +57,13 @@ h3 {
 }
 
 #mapNavDiv {
-    background-color: cornsilk;
+    /*background-color: cornsilk;
     border-radius: 25px;
     border-style: solid;
     border-width: 4px;
-    border-color:burlywood;
+    border-color:burlywood;*/
     margin-left: auto;
     margin-right: auto;
     margin-top: 30px;
-
+    display: none;
 }
