@@ -23,10 +23,10 @@ let current_subloc = '';
 let selected_subloc = '';
 
 // This is the site that we will use to host the server.
-//const URL = 'https://csc436-social-media-rpg.onrender.com';
+const URL = 'https://csc436-social-media-rpg.onrender.com';
 
 // Uncomment this if you're testing on your own machine:
-const URL = 'http://localhost:3000';
+//const URL = 'http://localhost:3000';
 
 // Test function to get items
 async function itemQuery() {
@@ -338,6 +338,7 @@ async function fetchLocation() {
 	.catch(err => { console.log(err); return null; });
 
     if (locResponse) {
+		console.log(locResponse);
         let locationData = locResponse.query[0];
 
     	current_region = locationData.region;
@@ -391,7 +392,7 @@ async function fetchSubList() {
         	let subDiv = document.createElement('div')
 
             let subButton = document.createElement('button');
-            subButton.onclick = 'subSelect(row.name)';
+            subButton.onclick = subSelect;
             subButton.innerText = row.name;
 			subDiv.appendChild(subButton);
 
@@ -401,8 +402,10 @@ async function fetchSubList() {
 }
 
 // Sublocation select function
-function subSelect(name) { 
-/*	let selectResponse = fetch(URL + '/query', {
+async function subSelect(elem) { 
+	let name = elem.target.innerText;
+	console.log("Sublocation selected:", name);
+	let selectResponse = await fetch(URL + '/query', {
 		method: "POST",
 		headers: {
 			'Accept': 'application/json',
@@ -414,11 +417,17 @@ function subSelect(name) {
 	.catch(err => { console.log(err); return null; });
 
 
-	fetchSublocation();
-	console.log('SubSelect Error') */
+	if (selectResponse) {
+		console.log('Switching location...');
+		fetchLocation();
+		fetchSublocation();
+		document.getElementById('subSwapDiv').replaceChildren();
+		fetchSubList();
+	}
+	else {
+		console.log('SubSelect Error')
+	}
 }
-
-
 
 /* Anish's Code */
 // Fetch character information using character ID
