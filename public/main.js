@@ -157,7 +157,7 @@ async function login() {
 function charSelect(elem) {
 	char_id = elem.target.parentNode.id;
 	console.log("Char ID selected: ", char_id);
-	charSelDiv.parentNode.removeChild(charSelDiv);
+	charSelDiv.innerHTML = "";
 	fetchLocation();
 	fetchCharacterInfo();
 	fetchInventory();
@@ -315,7 +315,6 @@ async function navToLoc(locname){
 
 function closeMap(){
     mapNavDiv.innerHTML = "";
-    //document.getElementById(mapNavDiv).classList.toggle("active");
 }
 
 
