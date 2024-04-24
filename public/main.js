@@ -18,10 +18,10 @@ let username = '';
 let char_id = '';
 
 // This is the site that we will use to host the server.
-//const URL = 'https://csc436-social-media-rpg.onrender.com';
+const URL = 'https://csc436-social-media-rpg.onrender.com';
 
 // Uncomment this if you're testing on your own machine:
-const URL = 'http://localhost:3000';
+//const URL = 'http://localhost:3000';
 
 // Test function to get items
 async function itemQuery() {
