@@ -7,20 +7,21 @@ const charSelectButton = document.getElementById('charSelectButton')
 const mapNavButton = document.getElementById('mapNavButton')
 const mapCloseButton = document.getElementById('mapCloseButton')
 
-
 const loginText = document.getElementById('username');
 const passText = document.getElementById('password');
 const loginDiv = document.getElementById('loginDiv');
 const charSelDiv = document.getElementById('characterSelectDiv');
 
+const inventory = document.getElementById('inventoryList');
+
 let username = '';
 let char_id = '';
 
 // This is the site that we will use to host the server.
-const URL = 'https://csc436-social-media-rpg.onrender.com';
+//const URL = 'https://csc436-social-media-rpg.onrender.com';
 
 // Uncomment this if you're testing on your own machine:
-//const URL = 'http://localhost:3000';
+const URL = 'http://localhost:3000';
 
 // Test function to get items
 async function itemQuery() {
@@ -95,6 +96,7 @@ async function signUp() {
 	if (response) {
 		char_id = response.char_id;
 		console.log("Char ID selected: ", char_id);
+		fetchLocation();
 		fetchCharacterInfo();
 		fetchInventory();
 	}
@@ -155,6 +157,7 @@ function charSelect(elem) {
 	char_id = elem.target.parentNode.id;
 	console.log("Char ID selected: ", char_id);
 	charSelDiv.parentNode.removeChild(charSelDiv);
+	fetchLocation();
 	fetchCharacterInfo();
 	fetchInventory();
 }
@@ -181,6 +184,34 @@ function toggleMap(){
 	document.getElementById('mapNavDiv').classList.toggle('active')
 }
 
+
+/* Jake's Code */
+async function fetchLocation() {
+	let response = await fetch(URL + '/query', {
+		method: "POST",
+		headers: {
+			'Accept': 'application/json',
+	    	'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({query: `SELECT location.* FROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON currently_in.sublocation_ID = is_part_of.sublocation_ID JOIN location ON is_part_of.location_ID = location.location_ID WHERE player_character.character_ID = ${char_id}`})
+	})
+	.then(res => res.json())
+	.catch(err => { console.log(err); return null; });
+
+    if (response) {
+        let locationData = response.query[0];
+		document.getElementById('locationDiv').style.backgroundColor = 'cornsilk';
+        document.getElementById('locName').innerHTML = locationData.name;
+        document.getElementById('locType').innerHTML = locationData.location_type + ', ' + locationData.region;
+        document.getElementById('locDesc').innerHTML = 'Description: ' + locationData.description;
+	}
+}
+
+
+
+
+
+
 /* Anish's Code */
 // Fetch character information using character ID
 async function fetchCharacterInfo() {
@@ -200,12 +231,15 @@ async function fetchCharacterInfo() {
     if (response) {
         // Assuming response.character is the data received for character
         let characterData = response.query[0];
-        document.getElementById('race').textContent = characterData.race;
-        document.getElementById('class').textContent = characterData.class;
-        document.getElementById('tool_proficiency').textContent = characterData.tool_proficiency;
-        document.getElementById('weapon_proficiency').textContent = characterData.weapon_proficiency;
-        document.getElementById('health_points').textContent = characterData.health_points;
-        document.getElementById('date_created').textContent = characterData.date_created;
+		document.getElementById('characterDiv').style.backgroundColor = 'cornsilk';
+        document.getElementById('charInfo').textContent = 'Character Info:';
+        document.getElementById('charName').textContent = characterData.name;
+        document.getElementById('charRace').textContent = 'Race: ' + characterData.race;
+        document.getElementById('charClass').textContent = 'Class: ' + characterData.class;
+        document.getElementById('charTool').textContent = 'Tool Proficiency: ' + characterData.tool_proficiency;
+        document.getElementById('charWeapon').textContent = 'Weapon Proficiency: ' + characterData.weapon_proficiency;
+        document.getElementById('charHP').textContent = 'Total Health Points: ' + characterData.health_points;
+        document.getElementById('charDate').textContent = 'Date Created: ' + characterData.date_created;
     }
 }
 
@@ -231,7 +265,7 @@ async function fetchInventory() {
 			console.log(item.type)
             let listItem = document.createElement('li');
             listItem.textContent = item.type;
-            inventoryList.appendChild(listItem);
+            inventory.appendChild(listItem);
         });
     }
 }
