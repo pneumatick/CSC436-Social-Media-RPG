@@ -5,12 +5,13 @@ const switchButton = document.getElementById('switchButton');
 
 const charSelectButton = document.getElementById('charSelectButton')
 const mapNavButton = document.getElementById('mapNavButton')
-const mapCloseButton = document.getElementById('mapCloseButton')
 
 const loginText = document.getElementById('username');
 const passText = document.getElementById('password');
 const loginDiv = document.getElementById('loginDiv');
 const charSelDiv = document.getElementById('characterSelectDiv');
+const mapNavDiv = document.getElementById('mapNavDiv')
+
 
 const inventory = document.getElementById('inventoryList');
 
@@ -180,9 +181,143 @@ function signOrLog(elem) {
 	}
 }
 
-function toggleMap(){
-	document.getElementById('mapNavDiv').classList.toggle('active')
+/* Nathaniel's Code */
+
+async function listChars(){
+    let response = await fetch(URL + '/query', {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({query: `SELECT char2.name 
+        FROM player_character JOIN plays ON player_character.character_ID = plays.character_ID JOIN user ON user.username = plays.username JOIN plays AS plays2 ON plays2.username = user.username JOIN player_character AS char2 ON plays2.character_ID = char2.character_ID 
+        WHERE player_character.character_ID = ${char_id}`})
+    })
+    .then(res => {
+        if (res.status === 200) {
+            return res.json();
+        }
+        else { return null }
+    })
+    .catch(err => { console.log(err); });
+
+    if (response) {
+        response.query.forEach((row) => {
+            console.log(row.name)
+            let charDiv = document.createElement('div');
+            charDiv.id = row.character_ID;
+
+            let characterElem = document.createElement('h2');
+            characterElem.innerHTML = row.name;
+            charDiv.appendChild(characterElem);
+            
+            let charButton = document.createElement('button');
+            charButton.onclick = charSelect(row.character_ID);
+            charButton.innerText = 'Select';
+            charDiv.appendChild(charButton);
+            
+            charSelDiv.appendChild(charDiv);
+        });
+    }
 }
+
+
+
+async function openMap(){
+    let response = await fetch(URL + '/query', {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({query: `SELECT connections.name
+        FROM location JOIN connects_to ON location.location_ID = connects_to.location_ID JOIN location AS connections ON connections.location_ID = connects_to.location_ID_2
+        WHERE location.name = (SELECT location.name
+        FROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON is_part_of.sublocation_ID = currently_in.sublocation_ID JOIN location ON location.location_ID = is_part_of.location_ID
+        WHERE player_character.character_ID = ${char_id})
+        UNION
+        SELECT connections.name
+        FROM location JOIN connects_to ON location.location_ID = connects_to.location_ID_2 JOIN location AS connections ON connections.location_ID = connects_to.location_ID
+        WHERE location.name = (SELECT location.name
+        FROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON is_part_of.sublocation_ID = currently_in.sublocation_ID JOIN location ON location.location_ID = is_part_of.location_ID
+        WHERE player_character.character_ID = ${char_id})`})
+    })
+    .then(res => {
+        if (res.status === 200) {
+            return res.json();
+        }
+        else { return null }
+    })
+    .catch(err => { console.log(err); });
+    
+    if(response){
+        let mapCloseButton = document.createElement('button');
+        mapCloseButton.innerText = "Close";
+        mapCloseButton.onclick = closeMap;
+        mapNavDiv.appendChild(mapCloseButton)
+
+        let mapTitle = document.createElement('h2');
+        mapTitle.innerText = "Map of Salamar and the Kendakrath Mountains";
+        mapNavDiv.appendChild(mapTitle)
+
+        let mapImg = document.createElement('img');
+        mapImg.src = "images/Social_Media_RPG_Map_w_Labels.jpeg";
+        mapImg.alt = "map";
+        mapImg.width = "800";
+        mapImg.height = "450";
+        mapNavDiv.appendChild(mapImg)
+
+        let navText = document.createElement('h3');
+        navText.innerText = "Travel to:";
+        mapNavDiv.appendChild(navText)
+
+        response.query.forEach((row) => {
+            console.log(row.name);
+            let navContainer = document.createElement('div');
+            navContainer.id = row.name;
+            
+            let locButton = document.createElement('button');
+            locButton.onclick = navToLoc(row.name);
+            locButton.innerText = row.name;
+            mapNavDiv.appendChild(locButton);
+
+
+        });
+        
+    }
+}
+
+async function navToLoc(locname){
+    let response = await fetch(URL + '/query', {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({query: `UPDATE currently_in
+        SET currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id}), currently_in.sublocation_ID = (SELECT is_part_of.sublocation_ID FROM is_part_of JOIN location ON is_part_of.location_ID = location.location_ID WHERE location.name = ${locname}
+        LIMIT 1)
+        WHERE currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id});`})
+    })
+    .then(res => {
+        if (res.status === 200) {
+            return res.json();
+        }
+        else { return null }
+    })
+    .catch(err => { console.log(err); });
+    
+    if (response){
+        closeMap()
+    }
+}
+
+function closeMap(){
+    mapNavDiv.innerHTML = "";
+    //document.getElementById(mapNavDiv).classList.toggle("active");
+}
+
 
 
 /* Jake's Code */
@@ -275,11 +410,7 @@ async function fetchInventory() {
 //testButton.onclick = itemQuery;
 loginButton.onclick = login;
 switchButton.onclick = signOrLog;
-mapNavButton.onclick = toggleMap;
-mapCloseButton.onclick = toggleMap;
+mapNavButton.onclick = openMap;
+charSelectButton.onclick = listChars;
 
-// Assign functions to elements
-testButton.onclick = itemQuery;
-loginButton.onclick = login;
-switchButton.onclick = signOrLog;
 
