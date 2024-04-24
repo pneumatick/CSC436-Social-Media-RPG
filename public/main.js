@@ -2,6 +2,12 @@ const testButton = document.getElementById('test');
 const emailText = document.getElementById('email');
 const loginButton = document.getElementById('loginButton');
 const switchButton = document.getElementById('switchButton');
+
+const charSelectButton = document.getElementById('charSelectButton')
+const mapNavButton = document.getElementById('mapNavButton')
+const mapCloseButton = document.getElementById('mapCloseButton')
+
+
 const loginText = document.getElementById('username');
 const passText = document.getElementById('password');
 const loginDiv = document.getElementById('loginDiv');
@@ -11,10 +17,10 @@ let username = '';
 let char_id = '';
 
 // This is the site that we will use to host the server.
-//const URL = 'https://csc436-social-media-rpg.onrender.com';
+const URL = 'https://csc436-social-media-rpg.onrender.com';
 
 // Uncomment this if you're testing on your own machine:
-const URL = 'http://localhost:3000';
+//const URL = 'http://localhost:3000';
 
 // Test function to get items
 async function itemQuery() {
@@ -89,6 +95,8 @@ async function signUp() {
 	if (response) {
 		char_id = response.char_id;
 		console.log("Char ID selected: ", char_id);
+		fetchCharacterInfo();
+		fetchInventory();
 	}
 }
 
@@ -123,6 +131,7 @@ async function login() {
 	
 	// Create a div for each character and a button to select them
 	if (response) {
+		console.log(response.characters)
 		response.characters.forEach((row) => {
 			let charDiv = document.createElement('div');
 			charDiv.id = row.character_ID;
@@ -146,6 +155,8 @@ function charSelect(elem) {
 	char_id = elem.target.parentNode.id;
 	console.log("Char ID selected: ", char_id);
 	charSelDiv.parentNode.removeChild(charSelDiv);
+	fetchCharacterInfo();
+	fetchInventory();
 }
 
 // Switch between logging in and signing up
@@ -166,7 +177,75 @@ function signOrLog(elem) {
 	}
 }
 
+function toggleMap(){
+	document.getElementById('mapNavDiv').classList.toggle('active')
+}
+
+/* Anish's Code */
+// Fetch character information using character ID
+async function fetchCharacterInfo() {
+    let response = await fetch(URL + '/query', {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            query: 
+            `SELECT * FROM player_character WHERE character_ID=${char_id}`})
+    })
+    .then(res => res.json())
+    .catch(err => { console.error(err); return null; });
+
+    if (response) {
+        // Assuming response.character is the data received for character
+        let characterData = response.query[0];
+        document.getElementById('race').textContent = characterData.race;
+        document.getElementById('class').textContent = characterData.class;
+        document.getElementById('tool_proficiency').textContent = characterData.tool_proficiency;
+        document.getElementById('weapon_proficiency').textContent = characterData.weapon_proficiency;
+        document.getElementById('health_points').textContent = characterData.health_points;
+        document.getElementById('date_created').textContent = characterData.date_created;
+    }
+}
+
+// Fetch inventory items using character ID
+async function fetchInventory() {
+    let response = await fetch(URL + '/query', {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({query: `SELECT item.type FROM player_character JOIN has_item ON player_character.character_ID = has_item.character_ID JOIN item ON has_item.item_ID = item.item_ID WHERE player_character.character_ID = ${char_id}`})
+    })
+    .then(res => res.json())
+    .catch(err => { console.error(err); return null; });
+
+    if (response) {
+        let inventoryList = document.getElementById('inventoryList');
+        inventoryList.innerHTML = ''; // Clear existing items
+
+        // Create a list item for each item in the inventory
+        response.query.forEach(item => {
+			console.log(item.type)
+            let listItem = document.createElement('li');
+            listItem.textContent = item.type;
+            inventoryList.appendChild(listItem);
+        });
+    }
+}
+
+
+// Assign functions to elements
+//testButton.onclick = itemQuery;
+loginButton.onclick = login;
+switchButton.onclick = signOrLog;
+mapNavButton.onclick = toggleMap;
+mapCloseButton.onclick = toggleMap;
+
 // Assign functions to elements
 testButton.onclick = itemQuery;
 loginButton.onclick = login;
 switchButton.onclick = signOrLog;
+

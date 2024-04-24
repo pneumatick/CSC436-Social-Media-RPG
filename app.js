@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 var mysql = require('mysql');
 
 const {sanitizeString} = require('./helpers.js');
@@ -25,7 +26,8 @@ function handleDisconnect() {
 		console.log('Database error:', err);
 		if(err.code === 'PROTOCOL_CONNECTION_LOST') {
 			handleDisconnect();
-		} else {
+		} 
+		else {
 			throw err;
 		}
 	});
@@ -36,6 +38,7 @@ handleDisconnect();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static('public'));
@@ -43,13 +46,19 @@ app.use(express.static('public'));
 // Handle front-end queries
 app.post('/query', async (req, res) => {
 	let {query} = req.body;
+	try {
 	con.query(query, function(err, result) {
-		if (err) {
-			res.status(404).json();
-			throw err;
-		}
+		//if (err) {
+		//	res.status(400).json();
+		//	throw err;
+		//}
 		res.send({ query: result });
-	});
+	})
+	}
+	catch (err) {
+		console.log(err);
+		res.status(400).json();
+	}
 });
 
 // Handle log in requests
