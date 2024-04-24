@@ -12,7 +12,9 @@ const loginDiv = document.getElementById('loginDiv');
 const charSelDiv = document.getElementById('characterSelectDiv');
 const mapNavDiv = document.getElementById('mapNavDiv')
 
+
 const subSwap = document.getElementById('subSwapDiv');
+
 
 const inventory = document.getElementById('inventoryList');
 
@@ -220,16 +222,19 @@ async function listChars(){
             characterElem.innerHTML = row.name;
             charDiv.appendChild(characterElem);
 
+
+
             let charButton = document.createElement('button');
             charButton.onclick = charSelect(row.character_ID);
             charButton.innerText = 'Select';
             charDiv.appendChild(charButton);
 
+            
+
             charSelDiv.appendChild(charDiv);
         });
     }
 }
-
 
 
 async function openMap(){
@@ -239,7 +244,9 @@ async function openMap(){
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
+
         body: JSON.stringify({query: `SELECT connections.name FROM location JOIN connects_to ON location.location_ID = connects_to.location_ID JOIN location AS connections ON connections.location_ID = connects_to.location_ID_2 WHERE location.name = (SELECT location.name FROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON is_part_of.sublocation_ID = currently_in.sublocation_ID JOIN location ON location.location_ID = is_part_of.location_ID WHERE player_character.character_ID = ${char_id}) UNION SELECT connections.name FROM location JOIN connects_to ON location.location_ID = connects_to.location_ID_2 JOIN location AS connections ON connections.location_ID = connects_to.location_ID WHERE location.name = (SELECT location.nameFROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON is_part_of.sublocation_ID = currently_in.sublocation_ID JOIN location ON location.location_ID = is_part_of.location_ID WHERE player_character.character_ID = ${char_id})`})
+
     })
     .then(res => {
         if (res.status === 200) {
@@ -248,7 +255,7 @@ async function openMap(){
         else { return null }
     })
     .catch(err => { console.log(err); });
-
+ 
     if(response){
         let mapCloseButton = document.createElement('button');
         mapCloseButton.innerText = "Close";
@@ -274,7 +281,7 @@ async function openMap(){
             console.log(row.name);
             let navContainer = document.createElement('div');
             navContainer.id = row.name;
-
+ 
             let locButton = document.createElement('button');
             locButton.onclick = navToLoc(row.name);
             locButton.innerText = row.name;
@@ -282,7 +289,7 @@ async function openMap(){
 
 
         });
-
+ 
     }
 }
 
@@ -293,7 +300,9 @@ async function navToLoc(locname){
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
+
         body: JSON.stringify({query: `UPDATE currently_in SET currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id}), currently_in.sublocation_ID = (SELECT is_part_of.sublocation_ID FROM is_part_of JOIN location ON is_part_of.location_ID = location.location_ID WHERE location.name = ${locname} LIMIT 1) WHERE currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id});`})
+
     })
     .then(res => {
         if (res.status === 200) {
@@ -302,7 +311,7 @@ async function navToLoc(locname){
         else { return null }
     })
     .catch(err => { console.log(err); });
-
+ 
     if (response){
         closeMap()
     }
@@ -481,8 +490,4 @@ switchButton.onclick = signOrLog;
 mapNavButton.onclick = openMap;
 charSelectButton.onclick = listChars;
 
-// Assign functions to elements
-testButton.onclick = itemQuery;
-loginButton.onclick = login;
-switchButton.onclick = signOrLog;
 
