@@ -17,7 +17,7 @@ h2 {
     margin-left: auto;
     margin-right: auto;
 }
-h2 {
+h3 {
     color: rgb(115, 15, 15);
     font-family: Georgia;
     font-size: 150%;
@@ -47,7 +47,7 @@ h2 {
     margin-top: 30px;
 }
 
-.mapNavDiv {
+#mapNavDiv {
     background-color: cornsilk;
     border-radius: 25px;
     border-style: solid;
@@ -57,16 +57,4 @@ h2 {
     margin-right: auto;
     margin-top: 30px;
     display: none;
-}
-
-.mapNavDiv .active{
-    background-color: cornsilk;
-    border-radius: 25px;
-    border-style: solid;
-    border-width: 4px;
-    border-color:burlywood;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 30px;
-    display: block;
 }
