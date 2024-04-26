@@ -23,10 +23,10 @@ let current_subloc = '';
 let selected_subloc = '';
 
 // This is the site that we will use to host the server.
-const URL = 'https://csc436-social-media-rpg.onrender.com';
+//const URL = 'https://csc436-social-media-rpg.onrender.com';
 
 // Uncomment this if you're testing on your own machine:
-//const URL = 'http://localhost:3000';
+const URL = 'http://localhost:3000';
 
 // Test function to get items
 async function itemQuery() {
@@ -365,6 +365,7 @@ async function fetchSublocation() {
 
     if (subResponse) {
         let sublocData = subResponse.query[0];
+		console.log(sublocData)
         document.getElementById('subName').innerHTML = sublocData.name;
         document.getElementById('subType').innerHTML = sublocData.building_type;
         document.getElementById('subDesc').innerHTML = sublocData.description;
@@ -403,7 +404,7 @@ async function fetchSubList() {
 
 // Sublocation select function
 async function subSelect(elem) { 
-	let name = elem.target.innerText;
+	let name = elem.target.innerText.replace(/'/g, "''");
 	console.log("Sublocation selected:", name);
 	let selectResponse = await fetch(URL + '/query', {
 		method: "POST",
