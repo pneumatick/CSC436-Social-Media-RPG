@@ -370,19 +370,20 @@ async function fetchSublocation() {
         document.getElementById('subType').innerHTML = sublocData.building_type;
         document.getElementById('subDesc').innerHTML = sublocData.description;
 
-        current_subloc = sublocData.name;
+        //current_subloc = sublocData.name;
 	}
 }
 
 // Create the Sublocation Button List
 async function fetchSubList() {
+	let formatted_subloc = current_subloc.replace(/'/g, "''");
 	let subListResponse = await fetch(URL + '/query', {
 		method: "POST",
 		headers: {
 			'Accept': 'application/json',
 	    	'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({query: `SELECT sublocation.* FROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON currently_in.sublocation_ID = is_part_of.sublocation_ID JOIN location ON is_part_of.location_ID = location.location_ID JOIN is_part_of AS others_part_of ON location.location_ID = others_part_of.location_ID JOIN sublocation ON others_part_of.sublocation_ID = sublocation.sublocation_ID WHERE player_character.character_ID =  ${char_id} AND sublocation.name != '${current_subloc}'` })
+		body: JSON.stringify({query: `SELECT sublocation.* FROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON currently_in.sublocation_ID = is_part_of.sublocation_ID JOIN location ON is_part_of.location_ID = location.location_ID JOIN is_part_of AS others_part_of ON location.location_ID = others_part_of.location_ID JOIN sublocation ON others_part_of.sublocation_ID = sublocation.sublocation_ID WHERE player_character.character_ID =  ${char_id} AND sublocation.name != '${formatted_subloc}'` })
 	})
 	.then(res => res.json())
 	.catch(err => { console.log(err); return null; });
@@ -390,6 +391,7 @@ async function fetchSubList() {
     if (subListResponse) {
         document.getElementById('subSwapInfo').textContent = 'Available Travel Locations within ' + current_region + ':';
         subListResponse.query.forEach((row) => {
+			if (row.name === document.getElementById('subName').innerText) { return; }
         	let subDiv = document.createElement('div')
 
             let subButton = document.createElement('button');
@@ -419,6 +421,7 @@ async function subSelect(elem) {
 
 
 	if (selectResponse) {
+		current_subloc = elem.target.innerText;
 		console.log('Switching location...');
 		fetchLocation();
 		fetchSublocation();
