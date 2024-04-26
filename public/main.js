@@ -12,6 +12,7 @@ const loginDiv = document.getElementById('loginDiv');
 const charSelDiv = document.getElementById('characterSelectDiv');
 const mapNav = document.getElementById('mapNavDiv')
 
+const locSwap = document.getElementById('locSwapDiv');
 const subSwap = document.getElementById('subSwapDiv');
 
 const inventory = document.getElementById('inventoryList');
@@ -294,14 +295,17 @@ async function openMap(){
     */
 }
 
-async function navToLoc(locname){
+async function navToLoc(elem){
+	let locname = elem.target.innerText;
     let response = await fetch(URL + '/query', {
         method: "POST",
         headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({query: `UPDATE currently_in SET currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id}), currently_in.sublocation_ID = (SELECT is_part_of.sublocation_ID FROM is_part_of JOIN location ON is_part_of.location_ID = location.location_ID WHERE location.name = ${locname} LIMIT 1) WHERE currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id});`})
+        //body: JSON.stringify({query: `UPDATE currently_in SET currently_in.character_ID = ${char_id}), currently_in.sublocation_ID = (SELECT is_part_of.sublocation_ID FROM is_part_of JOIN location ON is_part_of.location_ID = location.location_ID WHERE location.name = ${locname} LIMIT 1) WHERE currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id});`})
+        body: JSON.stringify({query: `UPDATE currently_in SET currently_in.sublocation_ID = (SELECT is_part_of.sublocation_ID FROM is_part_of JOIN location ON is_part_of.location_ID = location.location_ID WHERE location.name = '${locname}' LIMIT 1) WHERE currently_in.character_ID = ${char_id};`})
+
     })
     .then(res => {
         if (res.status === 200) {
@@ -312,7 +316,11 @@ async function navToLoc(locname){
     .catch(err => { console.log(err); });
 
     if (response){
-        closeMap()
+		console.log("Navigating to", locname)
+		console.log(response);
+		fetchLocation();
+		fetchSublocation();
+		fetchSubList();
     }
 }
 
@@ -321,9 +329,6 @@ function closeMap(){
     //document.getElementById(mapNavDiv).classList.toggle("active");
 }
 
-
-
-/* Jake's Code */
 // Fill the Location Header
 async function fetchLocation() {
 	let locResponse = await fetch(URL + '/query', {
@@ -347,6 +352,40 @@ async function fetchLocation() {
         document.getElementById('locName').innerHTML = locationData.name;
         document.getElementById('locType').innerHTML = locationData.region + ', ' + locationData.location_type;
         document.getElementById('locDesc').innerHTML = locationData.description;
+
+		fetchConnectedLocations(locationData.location_ID);
+	}
+}
+
+// Get connected locations
+async function fetchConnectedLocations(loc_ID) {
+	console.log("Current region:", current_region);
+	let locResponse = await fetch(URL + '/query', {
+		method: "POST",
+		headers: {
+			'Accept': 'application/json',
+	    	'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({query: `SELECT connects_to.location_ID_2, (SELECT location.name FROM location WHERE location.location_ID = connects_to.location_ID_2) AS name FROM location JOIN connects_to ON location.location_ID = connects_to.location_ID WHERE location.location_ID = ${loc_ID}`})
+	})
+	.then(res => res.json())
+	.catch(err => { console.log(err); return null; });
+
+	if (locResponse) {
+		let connectedLocs = locResponse.query;
+
+		locSwap.replaceChildren();
+		connectedLocs.forEach((row) => {
+			let locButton = document.createElement('button');
+			let buttonDiv = document.createElement('div');
+			locButton.onclick = navToLoc;
+			locButton.innerText = row.name;
+			buttonDiv.appendChild(locButton);
+			locSwap.appendChild(buttonDiv);
+		});
+	}
+	else {
+		console.log('Error fetching connected locations');
 	}
 }
 
@@ -390,6 +429,7 @@ async function fetchSubList() {
 
     if (subListResponse) {
         document.getElementById('subSwapInfo').textContent = 'Available Travel Locations within ' + current_region + ':';
+		subSwap.replaceChildren();
         subListResponse.query.forEach((row) => {
 			if (row.name === document.getElementById('subName').innerText) { return; }
         	let subDiv = document.createElement('div')
@@ -425,7 +465,7 @@ async function subSelect(elem) {
 		console.log('Switching location...');
 		fetchLocation();
 		fetchSublocation();
-		document.getElementById('subSwapDiv').replaceChildren();
+		//document.getElementById('subSwapDiv').replaceChildren();
 		fetchSubList();
 	}
 	else {
