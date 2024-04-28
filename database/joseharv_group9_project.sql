@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Mar 03, 2024 at 10:22 AM
+-- Generation Time: Apr 28, 2024 at 12:47 PM
 -- Server version: 5.7.23-23
 -- PHP Version: 8.1.27
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `jakeelvi_social_media_rpg`
+-- Database: `joseharv_group9_project`
 --
 
 -- --------------------------------------------------------
@@ -43,7 +43,13 @@ INSERT INTO `connects_to` (`connection_ID`, `location_ID`, `location_ID_2`) VALU
 (3, 3, 6),
 (4, 1, 4),
 (5, 4, 5),
-(6, 5, 6);
+(6, 5, 6),
+(7, 2, 1),
+(8, 3, 1),
+(9, 6, 3),
+(10, 4, 1),
+(11, 5, 4),
+(12, 6, 5);
 
 -- --------------------------------------------------------
 
@@ -61,11 +67,23 @@ CREATE TABLE `currently_in` (
 --
 
 INSERT INTO `currently_in` (`character_ID`, `sublocation_ID`) VALUES
-(1, 5),
-(2, 10),
-(3, 9),
-(4, 20),
-(5, 1);
+(1, 9),
+(2, 14),
+(3, 3),
+(4, 4),
+(5, 1),
+(6, 8),
+(7, 6),
+(8, 6),
+(9, 9),
+(10, 5),
+(11, 6),
+(12, 5),
+(13, 9),
+(14, 5),
+(15, 9),
+(16, 9),
+(17, 5);
 
 -- --------------------------------------------------------
 
@@ -401,7 +419,19 @@ INSERT INTO `player_character` (`character_ID`, `name`, `race`, `class`, `tool_p
 (2, 'Justus Fiendcrusher', 'tiefling', 'paladin', 'blacksmith\'s tools', 'melee weapons', 15, '2024-02-23'),
 (3, 'Holkur the Thunderfist', 'dwarf', 'fighter', 'blacksmith\'s tools', 'melee weapons', 14, '2024-02-23'),
 (4, 'Gustavus Ferdinando III', 'human', 'bard', 'stringed instrument', 'melee weapons', 11, '2024-02-23'),
-(5, 'Father Patrick O\'Flannigan', 'halfling', 'cleric', 'carpenter\'s tools', 'ranged weapons', 13, '2024-02-23');
+(5, 'Father Patrick O\'Flannigan', 'halfling', 'cleric', 'carpenter\'s tools', 'ranged weapons', 13, '2024-02-23'),
+(6, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(7, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(8, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(9, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(10, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(11, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(12, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(13, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(14, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(15, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(16, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00'),
+(17, 'Unknown Brute', 'human', 'fighter', 'none', 'melee weapons', 10, '0000-00-00');
 
 -- --------------------------------------------------------
 
@@ -423,7 +453,19 @@ INSERT INTO `plays` (`username`, `character_ID`) VALUES
 ('Nathaniel_N', 2),
 ('Nathaniel_N', 3),
 ('Nathaniel_N', 4),
-('Nathaniel_N', 5);
+('Nathaniel_N', 5),
+('test', 6),
+('rabbit', 7),
+('b', 8),
+('alex', 9),
+('ii', 10),
+('testing', 11),
+('fartlord', 12),
+('bunbun', 13),
+('Bloodstone', 14),
+('Scapegoat;', 15),
+('Adjunct;', 16),
+('FinalUser', 17);
 
 -- --------------------------------------------------------
 
@@ -470,6 +512,27 @@ INSERT INTO `sublocation` (`sublocation_ID`, `name`, `building_type`, `descripti
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `trees`
+--
+
+CREATE TABLE `trees` (
+  `tree_ID` int(10) NOT NULL,
+  `tree_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
+  `sublocation_ID` int(10) NOT NULL,
+  `age` int(10) DEFAULT NULL,
+  `height` int(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Dumping data for table `trees`
+--
+
+INSERT INTO `trees` (`tree_ID`, `tree_type`, `sublocation_ID`, `age`, `height`) VALUES
+(1, 'Oak', 6, 10, 12);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `unlocks`
 --
 
@@ -498,7 +561,7 @@ INSERT INTO `unlocks` (`unlock_ID`, `item_ID`, `sublocation_ID`) VALUES
 CREATE TABLE `user` (
   `email` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
   `username` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
-  `password` varchar(50) COLLATE utf8_unicode_ci NOT NULL
+  `password` varchar(100) COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -506,10 +569,22 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`email`, `username`, `password`) VALUES
-('anishmaharjan@uri.edu', 'AnishM', 'Snailshell-545'),
-('jake_elvin@uri.edu', 'Jake_E', 'Whatever90.'),
-('jose_harvey@uri.edu', 'Jose_H', 'Josespassword22!'),
-('nnichols@uri.edu', 'Nathaniel_N', 'Ilovefantasy11!');
+('a', 'b', '2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6'),
+('adjunct@gmail.gov', 'Adjunct;', '7f83ef71253dc995a9008621c24f4bc816b8b19aa62a678e252b874ee6e67469'),
+('adriel_lizarda@uri.edu', 'fartlord', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'),
+('anishmaharjan@uri.edu', 'AnishM', '733a783b1558b0848c6e0c9106125303421fe56addbe798870ad079de83ce4ee'),
+('bloodstone@hotmail.gov', 'Bloodstone', '24695cd9e4f0fd38b77f0e2988f666efd8e5dc669c21d392c90bcc585f41c4bf'),
+('fake@gmail.com', 'bunbun', 'cc6484cec255586552fdee0e7473eaf6dcb02c8132258152e2b0165ffba90786'),
+('final@gmail.com', 'FinalUser', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),
+('jake_elvin@uri.edu', 'Jake_E', '8e48ffa1fab914cc38e07e604d8d70e09ed403d25b266fdaaec95f4f6afc3d46'),
+('jose_harvey@uri.edu', 'Jose_H', '1cd7dad5b34ed58cdc6a6775da8b5d8edce49f1204d0e9e5b86e86261cda0d68'),
+('nnichols@uri.edu', 'Nathaniel_N', 'd793eae1e1c9f808aad24885e4673a317646c7e6415adef84ebbd91244e3f287'),
+('real@fake.com', 'alex', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'),
+('real1@fake.com', 'ii', '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5'),
+('smasher@hotmail.com', 'Scapegoat;', 'd1c4f75d99210e229095ff8df0d38f0bb168c6f69c41a30d5dbacddbd0a78171'),
+('test@gmail.com', 'testing', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'),
+('test@test.test', 'test', '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'),
+('theanish0123@gmail.com', 'rabbit', '3d7cabf6edd0a3ef6678a3e4ebdaae54bee3a12d53f5832ec8d5c3b160494dd6');
 
 --
 -- Indexes for dumped tables
@@ -574,6 +649,12 @@ ALTER TABLE `plays`
 --
 ALTER TABLE `sublocation`
   ADD PRIMARY KEY (`sublocation_ID`);
+
+--
+-- Indexes for table `trees`
+--
+ALTER TABLE `trees`
+  ADD PRIMARY KEY (`tree_ID`);
 
 --
 -- Indexes for table `unlocks`
