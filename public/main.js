@@ -2,6 +2,7 @@ const testButton = document.getElementById('test');
 const emailText = document.getElementById('email');
 const loginButton = document.getElementById('loginButton');
 const switchButton = document.getElementById('switchButton');
+const resetButton = document.getElementById('resetButton');
 
 const charSelectButton = document.getElementById('charSelectButton')
 const mapNavButton = document.getElementById('mapNavButton')
@@ -17,6 +18,7 @@ const subSwap = document.getElementById('subSwapDiv');
 
 const inventory = document.getElementById('inventoryList');
 
+// Global variables
 let username = '';
 let char_id = '';
 let current_region = '';
@@ -24,37 +26,10 @@ let current_subloc = '';
 let selected_subloc = '';
 
 // This is the site that we will use to host the server.
-//const URL = 'https://csc436-social-media-rpg.onrender.com';
+const URL = 'https://csc436-social-media-rpg.onrender.com';
 
 // Uncomment this if you're testing on your own machine:
-const URL = 'http://localhost:3000';
-
-// Test function to get items
-async function itemQuery() {
-	// Send a POST requet to the server to perform a query
-	// and save the HTML response
-	let response = await fetch(URL + '/query', {
-			method: "POST",
-			headers: {
-				'Accept': 'application/json',
-		    	'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({query: 'SELECT * FROM item'})
-		})
-		.then(res => {
-			if (res.status === 200) {
-				return res.json();
-			}
-			else { return null }
-		})
-		.catch(err => { console.log(err); });
-
-	// Get the data from the query (in response.query)
-	// iterater over each row and print the item type to the console
-	response.query.forEach((row) => {
-		console.log(row.type);
-	});
-}
+//const URL = 'http://localhost:3000';
 
 /* Log in / sign up functions */
 
@@ -160,9 +135,90 @@ async function login() {
 	}
 }
 
-// Character select function
-function charSelect(elem) {
+// Reset a user's password
+async function resetPassword() {
+	let email = emailText.value;
+	username = loginText.value;
+	let password = await sha256(passText.value);
+	if (!(email && username && password)) {
+		alert('Please enter email and username, along with your desired password');
+		return;
+	}
+	// Determine if the user exists
+	let userResponse = await fetch(URL + '/query', {
+			method: "POST",
+			headers: {
+				'Accept': 'application/json',
+		    	'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({query: `SELECT COUNT(*) FROM user WHERE email = '${email}' AND username = '${username}'`})
+		})
+		.then(res => { return res.json(); })
+		.catch(err => { console.log(err); });
 	
+	if (userResponse) {
+		if (userResponse.query[0]["COUNT(*)"] === 0) {
+			console.log('User not found');
+			alert('Error: User not found. Please check your email and username.');
+			return;
+		}
+	}
+	
+	// Reset the password
+	let resetResponse = await fetch(URL + '/query', {
+			method: "POST",
+			headers: {
+				'Accept': 'application/json',
+		    	'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({query: `UPDATE user SET password = '${password}' WHERE email = '${email}' AND username = '${username}'`})
+		})
+		.then(res => {
+			if (res.status === 200) {
+				console.log('Password reset successful');
+				alert('Password reset successful');
+				return res.json();
+			}
+			else {
+				console.log('Password reset failed');
+				alert('Password reset failed');
+				return null;
+			}
+		})
+		.catch(err => { console.log(err); });
+}
+
+// Switch between logging in, signing up, and resetting password
+function signOrLog(elem) {
+	// Switch to Sign Up mode
+	if (elem.target.innerText === 'Sign Up Instead') {
+		emailText.style.display = 'block';
+		elem.target.innerText = 'Log in Instead';
+		loginButton.innerText = 'Sign Up';
+		loginButton.onclick = signUp;
+	}
+	else if (elem.target.innerText === 'Reset Password') {
+		emailText.style.display = 'block';
+		resetButton.style.display = 'none';
+		loginButton.innerText = 'Attempt Reset';
+		loginButton.onclick = resetPassword;
+		return;
+	}
+	// Switch to Log In mode 
+	else {
+		emailText.style.display = 'none';
+		elem.target.innerText = 'Sign Up Instead';
+		loginButton.innerText = 'Log In';
+		loginButton.onclick = login;
+	}
+
+	resetButton.style.display = 'inline-block';
+}
+
+/* Game functions */
+
+// Character select function
+function charSelect(elem) {	
 	char_id = elem.target.parentNode.id;
 	console.log("Char ID selected: ", char_id);
 	charSelDiv.parentNode.removeChild(charSelDiv);
@@ -174,127 +230,26 @@ function charSelect(elem) {
 	fetchInventory();
 }
 
-// Switch between logging in and signing up
-function signOrLog(elem) {
-	// Switch to Sign Up mode
-	if (elem.target.innerText === 'Sign Up Instead') {
-		emailText.style.display = 'block';
-		elem.target.innerText = 'Log in Instead';
-		loginButton.innerText = 'Sign Up';
-		loginButton.onclick = signUp;
-	}
-	// Switch to Log In mode 
-	else {
-		emailText.style.display = 'none';
-		elem.target.innerText = 'Sign Up Instead';
-		loginButton.innerText = 'Log In';
-		loginButton.onclick = login;
-	}
-}
-
-/* Nathaniel's Code */
-
-function listChars(){
+// Switch characters (effectively have the user log back in)
+// with a different character
+function switchChars(){
 	location.reload()
-/*
-    let response = await fetch(URL + '/query', {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({query: `SELECT char2.name FROM player_character JOIN plays ON player_character.character_ID = plays.character_ID JOIN user ON user.username = plays.username JOIN plays AS plays2 ON plays2.username = user.username JOIN player_character AS char2 ON plays2.character_ID = char2.character_ID WHERE player_character.character_ID = ${char_id}`})
-    })
-    .then(res => {
-        if (res.status === 200) {
-            return res.json();
-        }
-        else { return null }
-    })
-    .catch(err => { console.log(err); });
-
-    if (response) {
-        response.query.forEach((row) => {
-            console.log(row.name)
-            let charDiv = document.createElement('div');
-            charDiv.id = row.character_ID;
-
-            let characterElem = document.createElement('h2');
-            characterElem.innerHTML = row.name;
-            charDiv.appendChild(characterElem);
-
-            let charButton = document.createElement('button');
-            charButton.onclick = charSelect(row.character_ID);
-            charButton.innerText = 'Select';
-            charDiv.appendChild(charButton);
-
-            charSelDiv.appendChild(charDiv);
-        });
-    }
-    */
 }
 
-
-async function openMap(){
-	/*
-    let response = await fetch(URL + '/query', {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({query: `SELECT connections.name FROM location JOIN connects_to ON location.location_ID = connects_to.location_ID JOIN location AS connections ON connections.location_ID = connects_to.location_ID_2 WHERE location.name = (SELECT location.name FROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON is_part_of.sublocation_ID = currently_in.sublocation_ID JOIN location ON location.location_ID = is_part_of.location_ID WHERE player_character.character_ID = ${char_id}) UNION SELECT connections.name FROM location JOIN connects_to ON location.location_ID = connects_to.location_ID_2 JOIN location AS connections ON connections.location_ID = connects_to.location_ID WHERE location.name = (SELECT location.nameFROM player_character JOIN currently_in ON player_character.character_ID = currently_in.character_ID JOIN is_part_of ON is_part_of.sublocation_ID = currently_in.sublocation_ID JOIN location ON location.location_ID = is_part_of.location_ID WHERE player_character.character_ID = ${char_id})`})
-    })
-    .then(res => {
-        if (res.status === 200) {
-            return res.json();
-        }
-        else { return null }
-    })
-    .catch(err => { console.log(err); });
-
-    if(response){
-    */
-    document.getElementById('mapNavDiv').style.display = 'block';
-
-    	/*
-        let mapCloseButton = document.createElement('button');
-        mapCloseButton.innerText = "Close";
-        mapCloseButton.onclick = closeMap;
-        mapNavDiv.appendChild(mapCloseButton)
-
-        let mapTitle = document.createElement('h2');
-        mapTitle.innerText = "Map of Salamar and the Kendakrath Mountains";
-        mapNavDiv.appendChild(mapTitle)
-
-        let mapImg = document.createElement('img');
-        mapImg.src = "images/Social_Media_RPG_Map_w_Labels.jpeg";
-        mapImg.alt = "map";
-        mapImg.width = "800";
-        mapImg.height = "450";
-        mapNavDiv.appendChild(mapImg)
-
-        let navText = document.createElement('h3');
-        navText.innerText = "Travel to:";
-        mapNavDiv.appendChild(navText)
-
-        response.query.forEach((row) => {
-            console.log(row.name);
-            let navContainer = document.createElement('div');
-            navContainer.id = row.name;
-
-            let locButton = document.createElement('button');
-            locButton.onclick = navToLoc(row.name);
-            locButton.innerText = row.name;
-            mapNavDiv.appendChild(locButton);
-
-
-        });
-		
-    }
-    */
+// Display the map
+async function openMap(elem){
+	let mapDiv = document.getElementById('mapNavDiv');
+    if (mapDiv.style.display === 'block') {
+		elem.target.innerText = 'Show Map';
+		mapDiv.style.display = 'none';
+	}
+	else { 
+		elem.target.innerText = 'Hide Map';
+		mapDiv.style.display = 'block'; 
+	}
 }
 
+// Navigate to a location
 async function navToLoc(elem){
 	let locname = elem.target.innerText;
     let response = await fetch(URL + '/query', {
@@ -303,7 +258,6 @@ async function navToLoc(elem){
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
-        //body: JSON.stringify({query: `UPDATE currently_in SET currently_in.character_ID = ${char_id}), currently_in.sublocation_ID = (SELECT is_part_of.sublocation_ID FROM is_part_of JOIN location ON is_part_of.location_ID = location.location_ID WHERE location.name = ${locname} LIMIT 1) WHERE currently_in.character_ID = (SELECT character_ID FROM player_character WHERE character_ID = ${char_id});`})
         body: JSON.stringify({query: `UPDATE currently_in SET currently_in.sublocation_ID = (SELECT is_part_of.sublocation_ID FROM is_part_of JOIN location ON is_part_of.location_ID = location.location_ID WHERE location.name = '${locname}' LIMIT 1) WHERE currently_in.character_ID = ${char_id};`})
 
     })
@@ -322,11 +276,6 @@ async function navToLoc(elem){
 		fetchSublocation();
 		fetchSubList();
     }
-}
-
-function closeMap(){
-    document.getElementById('mapNavDiv').style.display = 'none';
-    //document.getElementById(mapNavDiv).classList.toggle("active");
 }
 
 // Fill the Location Header
@@ -408,8 +357,6 @@ async function fetchSublocation() {
         document.getElementById('subName').innerHTML = sublocData.name;
         document.getElementById('subType').innerHTML = sublocData.building_type;
         document.getElementById('subDesc').innerHTML = sublocData.description;
-
-        //current_subloc = sublocData.name;
 	}
 }
 
@@ -465,7 +412,6 @@ async function subSelect(elem) {
 		console.log('Switching location...');
 		fetchLocation();
 		fetchSublocation();
-		//document.getElementById('subSwapDiv').replaceChildren();
 		fetchSubList();
 	}
 	else {
@@ -473,7 +419,6 @@ async function subSelect(elem) {
 	}
 }
 
-/* Anish's Code */
 // Fetch character information using character ID
 async function fetchCharacterInfo() {
     let charResponse = await fetch(URL + '/query', {
@@ -534,16 +479,9 @@ async function fetchInventory() {
     }
 }
 
-
 // Assign functions to elements
-//testButton.onclick = itemQuery;
 loginButton.onclick = login;
 switchButton.onclick = signOrLog;
+resetButton.onclick = signOrLog;
 mapNavButton.onclick = openMap;
-charSelectButton.onclick = listChars;
-
-// Assign functions to elements
-//testButton.onclick = itemQuery;
-loginButton.onclick = login;
-switchButton.onclick = signOrLog;
-
+charSelectButton.onclick = switchChars;
