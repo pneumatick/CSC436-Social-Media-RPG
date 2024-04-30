@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Apr 28, 2024 at 12:47 PM
+-- Generation Time: Apr 29, 2024 at 07:18 PM
 -- Server version: 5.7.23-23
 -- PHP Version: 8.1.27
 
@@ -68,7 +68,7 @@ CREATE TABLE `currently_in` (
 
 INSERT INTO `currently_in` (`character_ID`, `sublocation_ID`) VALUES
 (1, 9),
-(2, 14),
+(2, 5),
 (3, 3),
 (4, 4),
 (5, 1),
@@ -512,27 +512,6 @@ INSERT INTO `sublocation` (`sublocation_ID`, `name`, `building_type`, `descripti
 -- --------------------------------------------------------
 
 --
--- Table structure for table `trees`
---
-
-CREATE TABLE `trees` (
-  `tree_ID` int(10) NOT NULL,
-  `tree_type` varchar(20) COLLATE utf8_unicode_ci NOT NULL,
-  `sublocation_ID` int(10) NOT NULL,
-  `age` int(10) DEFAULT NULL,
-  `height` int(10) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Dumping data for table `trees`
---
-
-INSERT INTO `trees` (`tree_ID`, `tree_type`, `sublocation_ID`, `age`, `height`) VALUES
-(1, 'Oak', 6, 10, 12);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `unlocks`
 --
 
@@ -649,12 +628,6 @@ ALTER TABLE `plays`
 --
 ALTER TABLE `sublocation`
   ADD PRIMARY KEY (`sublocation_ID`);
-
---
--- Indexes for table `trees`
---
-ALTER TABLE `trees`
-  ADD PRIMARY KEY (`tree_ID`);
 
 --
 -- Indexes for table `unlocks`
